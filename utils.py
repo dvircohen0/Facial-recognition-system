@@ -48,10 +48,6 @@ def extract_face(filename, required_size=(160, 160)):
 	face_array = asarray(image)
 	return face_array
 
-
-
-
-
 # load images and extract faces for all images in a directory
 def load_faces(directory):
 	faces = list()
