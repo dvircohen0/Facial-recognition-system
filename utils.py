@@ -20,6 +20,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 
 def Load_facenet():
+	# download the FaceNet model from here : https://drive.google.com/drive/folders/12aMYASGCKvDdkygSv1yQq8ns03AStDO_
 	return(load_model('facenet_keras.h5'))
 # facenet = load_model('facenet_keras.h5')
 
