@@ -43,19 +43,6 @@ if face_array is not None:
             new_data2 = np.vstack(array_tuple)
             savez_compressed(company_name + '.npz', new_data1, new_data2)
         
-        
-         
-        
-        
-       
-        
-   
-    
-
-
-
-
-# if not os.path.isdir(os.path.join("\database\testing",employee_name)
                      
 
 
