@@ -1,30 +1,151 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec 15 23:57:39 2020
-
-@author: דביר
-"""
-from PIL import Image
+from keras.models import load_model
+import numpy as np
 from numpy import asarray
 from mtcnn.mtcnn import MTCNN
-from os import listdir
-from os.path import isdir
 from numpy import expand_dims
-from sklearn.preprocessing import Normalizer
 import logging
 import os
 import cv2
-from keras.models import load_model
-# from face_detection import predict_new
+import glob
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 
-def Load_facenet():
-	# download the FaceNet model from here : https://drive.google.com/drive/folders/12aMYASGCKvDdkygSv1yQq8ns03AStDO_
-	return(load_model('facenet_keras.h5'))
-# facenet = load_model('facenet_keras.h5')
+from tkinter import *
+from tkinter import ttk
+import tkinter as tk 
+from PIL import ImageTk, Image
+from tkinter import filedialog
+
+
+"""
+This function is the GUI for the take employee picyure system
+"""
+
+def take_a_pic():
+    #creating global variable
+    global last_frame 
+    last_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    global cap
+    cap = cv2.VideoCapture(0)
+    
+    def callback(selection):
+        global select
+        select = selection
+    
+    
+    def saveImage():
+        global img
+        img = last_frame
+        cv2.imwrite("capturedFrame.jpg",img)
+        
+    def show_vid(): 
+        if not cap.isOpened():
+            print("cant open the camera")
+        flag, frame = cap.read()
+        frame = cv2.flip(frame, 1)
+        if flag is None:
+            print("Major error!")
+        elif flag:
+            global last_frame
+            last_frame = frame.copy()
+    
+        pic = cv2.cvtColor(last_frame, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(pic)
+        imgtk = ImageTk.PhotoImage(image=img)
+        lmain.imgtk = imgtk
+        lmain.configure(image=imgtk)
+        lmain.after(10, show_vid)
+    
+    root=tk.Tk()
+    department_var=StringVar()
+    lmain = tk.Label(master=root)
+    lmain.grid(column=0, rowspan=4, padx=5, pady=5)
+    root.title("click to take a picture")
+    clicker = Button(root, text="click to take a picture", command=saveImage)
+    clicker.grid(row=5, column=0)
+    file_list=[]
+    # os.chdir()
+    for file in glob.glob("*.npz"):
+        file_list.append(file.split('.')[0])
+    
+    variable = StringVar(root)
+    variable.set("select department") # default value
+    w = OptionMenu(root, variable, *file_list, command=callback)
+    w.grid(row=6, column=0)
+    show_vid()
+    root.mainloop()                                  #keeps the application in an infinite loop so it works continuosly
+    cap.release()
+    return select
+        
+
+"""
+This function is the GUI for the new employee register system
+"""
+
+def rgister_new_employee():
+
+    root = Tk()
+    root.title('Rgister New Employee')
+    name_var=StringVar()
+    department_var=StringVar()
+    image_url_var=StringVar()
+    
+    
+    def save():
+        global employe_name, employe_depar
+        employe_name = name_var.get()
+        employe_depar = department_var.get()
+        data.append([employe_name,employe_depar,my_image])
+        # root.destroy()
+        
+    def open():
+        global my_image
+        root.filename = filedialog.askopenfilename(
+        initialdir=r"C:\Users\דביר\face detection deep\5-celebrity-faces-dataset\train",
+        title="Select an image",
+        filetypes=(("jpeg files","*.jpg"),("all files","*.*")))
+        my_image=root.filename
+        image_name_label = Label(root, text=root.filename)
+        image_name_label.grid(row=5, column=1)
+    
+       
+    f_name = Entry(root,textvariable = name_var, width=30)
+    f_name.grid(row=0, column =1, padx=20)
+    data=[]
+    
+    departments_list=[]
+    for file in glob.glob("*.npz"):
+        departments_list.append(file.split('.')[0])
+    
+    d_name = ttk.Combobox(root, textvariable=department_var)
+    d_name.grid(row=1, column =1, padx=20)
+    d_name['values'] = departments_list
+    
+    
+    f_name_label = Label(root, text="Full Name")
+    f_name_label.grid(row=0, column=0)
+    
+    f_name_label = Label(root, text="Department")
+    f_name_label.grid(row=1, column=0)
+    
+    my_btn = Button(root, text="Browse Image", command=open)
+    my_btn.grid(row=5, column=0)
+    
+    submit = Button(root, text="Save", command=save)
+    submit.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+    root.mainloop()
+    return data
+
+
+"""
+This function gets a path to an inage and a desired dimensions
+and return a face cropped from the image at the desired dimensions
+using the MTCNN model
+"""
 
 def extract_face(filename, required_size=(160, 160)):
+	print("extracting face...")
 	# load image from file
 	image = Image.open(filename)
 	# convert to RGB, if needed
@@ -48,61 +169,45 @@ def extract_face(filename, required_size=(160, 160)):
 	face_array = asarray(image)
 	return face_array
 
-# load images and extract faces for all images in a directory
-def load_faces(directory):
-	faces = list()
-	# enumerate files
-	for filename in listdir(directory):
-		# path
-		path = directory + filename
-		# get face
-		face = extract_face(path)
-		# stor
-		faces.append(face)
-	return faces
 
+"""
+This function gets a cropped face image and the FaceNet model
+as a input and return the embedded vector of the face using
+the model 
+"""
 
-def load_dataset(directory):
-	X, y = list(), list()
-	# enumerate folders, on per class
-	for subdir in listdir(directory):
-		# path
-		path = directory + subdir + '/'
-		# skip any files that might be in the dir
-		if not isdir(path):
-			continue
-		# load all faces in the subdirectory
-		faces = load_faces(path)
-		# create labels
-		labels = [subdir for _ in range(len(faces))]
-		# summarize progress
-		print('>loaded %d examples for class: %s' % (len(faces), subdir))
-		# store
-		X.extend(faces)
-		y.extend(labels)
-	return asarray(X), asarray(y)
-
-def get_embedding(face_pixels):
+def get_embedding(face_pixels, facenet):
+	print("creating embedded vector...")
 	# scale pixel values
 	face_pixels = face_pixels.astype('float32')
-	# standardize pixel values across channels (global)
+# 	standardize pixel values across channels (global)
 	mean, std = face_pixels.mean(), face_pixels.std()
 	face_pixels = (face_pixels - mean) / std
 	# transform face into one sample
 	samples = expand_dims(face_pixels, axis=0)
-	# make prediction to get embedding
-	facenet=Load_facenet()
-	yhat = facenet.predict(samples)
+	yhat = facenet(samples)
 	return yhat[0]
 
-def take_pic():    
-	cam = cv2.VideoCapture(0)   # 0 -> index of camera
-	s, img = cam.read()
-	cv2.imshow("image",img)
-	image_name = "test.jpg"
-	cv2.imwrite(image_name,img)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
-	cam.release()
-	return image_name
+"""
+This function gets an embedded vector, and an array of embedded vectors as 
+an input and return the lowest euclidean distance of the vectors in the array
+from the embedded vector 
+"""
+def auclidaian_distance(embedded_vector, embedded_database):
+    dist=[]
+    #compute the euclidean distance between the embedded vector
+    for i in range(len(embedded_database)):
+        dist.append( np.linalg.norm(embedded_vector-embedded_database[i]))
+        #return the euclidean distance
+        lowest_value = min(dist)
+    return lowest_value
 
+"""
+This function loads the FaceNet model
+"""
+
+def load_facenet():
+    print('loading Facenet...')
+    facenet = load_model('facenet_keras.h5')
+    print('Facenet loaded!')
+    return facenet
