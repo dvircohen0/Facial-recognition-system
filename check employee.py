@@ -1,49 +1,60 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 16 17:46:36 2020
-
-@author: דביר
-"""
-
-
-from numpy import asarray
-from matplotlib import pyplot
-from numpy import savez_compressed
 from numpy import load
-from numpy import expand_dims
+import numpy as np
 from keras.models import load_model
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import LabelEncoder
+from numpy import expand_dims
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import Normalizer
 from sklearn.svm import SVC
-from random import choice
-import logging
-import os
-import time
-from utils import take_pic, extract_face, get_embedding
+from utils import extract_face, get_embedding,take_a_pic, auclidaian_distance,  load_facenet
+import warnings
+from sklearn.exceptions import DataConversionWarning
+warnings.filterwarnings(action='ignore', category=DataConversionWarning)
 
-company_name = input("Enter your company name: ").upper() 
-print("Hello, please look straight up to the camera")
-time.sleep(2)
-pic_for_test = take_pic()
-face_array = extract_face(pic_for_test, required_size=(160, 160))
+#loading facenet model
+facenet = load_facenet()
+
+#open GUI to get image from webcam and enternig deparment name
+company_name=take_a_pic()
+# getting the cropped face from the image
+face_array = extract_face("capturedFrame.jpg", required_size=(160, 160))
+    
 if face_array is not None:
-    embedded_face =  get_embedding(face_array)
+    #calling get_embedding to get embedded vector of the face
+    embedded_face =  get_embedding(face_array,facenet)
+    #Normalize the embedded vector
     in_encoder = Normalizer(norm='l2')
     embedded = expand_dims(embedded_face, axis=0)
     embedded = in_encoder.transform(embedded)
-    
-    
+
+# load the depatmrnt embedded vectors
 data = load(company_name + '.npz')
+# put the embedded vectors in trainX and the labels in trainy 
 trainX, trainy = data['arr_0'], data['arr_1']
-out_encoder = LabelEncoder()
+# encode the labels (the employees names) into numbers
+out_encoder = OrdinalEncoder()
 out_encoder.fit(trainy)
 trainy = out_encoder.transform(trainy)
+# creat SVC classefier object
 model = SVC(kernel='linear', probability=True)
+# fit the classefier to the embedded vectors and encoded labels
 model.fit(trainX, trainy)
-yhat_prob=model.predict_proba(embedded)
 
-# predicttestt
-prediction = model.predict(embedded)
-print("hello,",data['arr_1'][prediction][0][0],"have a good day!")
+# get the model prediction
+yhat_class = model.predict(embedded)
+# get the model probabilities for each label
+yhat_prob = model.predict_proba(embedded)
+#convert the prediction from a number to a name
+predict_names = out_encoder.inverse_transform(yhat_class.reshape(-1, 1))
+#compute the euclidean distance between the embedded vector
+# to the predict embedded vector 
+if auclidaian_distance(embedded,data['arr_0']) > 1.2 :
+    print("Access Denied!")
+else:
+    print("hello,", np.squeeze(predict_names),"have a good day!")
+
+    
+
+
+
+
 
