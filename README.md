@@ -1,4 +1,4 @@
-# face-detection-and-recognition-system
+# Face Detectionand Recognition System
 
 
 This project consists of two parts: 
