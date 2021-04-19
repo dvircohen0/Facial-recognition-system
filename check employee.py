@@ -6,7 +6,6 @@ from sklearn.preprocessing import Normalizer, OrdinalEncoder
 import numpy as np
 import os
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
 import tensorflow as tf
 import sys
 from pathlib import Path
@@ -231,7 +230,7 @@ while True:
                 # Read the embedded vectors from the department database
                 embs = Database.Embedding[Database.Department == depart].values
                 if len(Names) == 1:
-                    if cosine_similarity(embedded, embs[0]) < 0.4:
+                    if np.linalg.norm(embedded - embs[0]) < 0.4:
                         sg.popup("Access Denied!", background_color='red',
                                  no_titlebar=True,
                                  icon=icon_path)
@@ -249,13 +248,10 @@ while True:
                     out_encoder.fit(Names.reshape(-1, 1))
                     Names = out_encoder.transform(Names.reshape(-1, 1))
                     # find the closest embedding vector
-                    _,index = cKDTree(embs).query(embedded)
+                    dist,index = cKDTree(embs).query(embedded)
                     # convert the prediction from a number to a name
                     predict_name = out_encoder.inverse_transform(Names[index].reshape(-1, 1))
-                    predicted_vector = embs[np.where(Names == Names[index])[0]]
-                    # compute the cosine distance between the embedded vector
-                    # to the predict embedded vector
-                    if cosine_similarity(embedded, predicted_vector) < 0.4:
+                    if dist < 0.4:
                         # if the score is low deny access
                         sg.popup("Access Denied!", background_color='red',
                                   no_titlebar=True,icon=icon_path)
