@@ -46,7 +46,9 @@ if not os.path.exists(program_folder):
     os.makedirs(program_folder)
 
 Database_Path =os.path.join(program_folder,"Database.pkl")
-      
+
+   
+        
 #function that check if a pkl file is a valid databse file
 def check_database_valid(Database_path):
     valid=True
@@ -100,10 +102,10 @@ while Database_loaded:
 Database=pd.read_pickle(Database_Path)
 Department_ids =Database.Department.unique().tolist()
 
+
 sg.change_look_and_feel('DarkBlue2')
 sg.popup_animated(image_path,
                   message='Please Wait, Loading…',
-                  font=('Papyrus'),
                   icon=icon_path)
 # load facenet model
 tf.keras.backend.clear_session()
@@ -123,6 +125,7 @@ def get_embedding(face_pixels, facenet):
     yhat = facenet.predict(samples)
     return yhat[0]
 
+
 # build Normalize object for  the embedded vector
 in_encoder = Normalizer(norm='l2')
 # get a list with the name of all departmnts
@@ -138,14 +141,12 @@ frame_layout = [[sg.Image(filename="", key="-WEBACM-")]]
 graph = sg.Graph((500, 600), (0, 0), (500, 600), key='-G-')
 
 layout = [ [sg.Frame('WHO AM I?',
-                    frame_layout,
-                    font=('Papyrus', 19))],
+                    frame_layout)],
 
           [sg.Text("Department:",
                    justification='right',
                    size=(10, None),
-                   pad=(30, 0),
-                    font=('Papyrus')),
+                   pad=(30, 0)),
 
            sg.Combo(values=Department_ids,
                     size=(15, 1),
@@ -156,11 +157,9 @@ layout = [ [sg.Frame('WHO AM I?',
           [sg.Button("check me",
                      bind_return_key=True,
                      pad=(200, 0),
-                     font=('Papyrus'),
                      disabled=dont_allow_pic)]]
 window = sg.Window("check worker",
                    layout,
-                   font=("Papyrus", 12),
                    size=(500, 600),
                    location=(350, 0),
                    icon=icon_path)
@@ -186,7 +185,6 @@ while True:
             if not cap.isOpened():
                 sg.popup("Unable to load camera.", background_color='red',
                          no_titlebar=True,
-                         font=('Papyrus', 15),
                          icon=icon_path)
                 sleep(5)
                 pass
@@ -236,14 +234,12 @@ while True:
                     if cosine_similarity(embedded, embs[0]) < 0.4:
                         sg.popup("Access Denied!", background_color='red',
                                  no_titlebar=True,
-                                 font=('Papyrus', 15),
                                  icon=icon_path)
                         dont_allow_pic = False
                         window.Element("check me").Update(disabled=dont_allow_pic)
                     else:
                         sg.popup("Hello, " + Names[0] + " have a good day!",
                                  background_color='green',
-                                 font=('Papyrus', 15),
                                  icon=icon_path,
                                  no_titlebar=True)
                 else:
@@ -262,14 +258,13 @@ while True:
                     if cosine_similarity(embedded, predicted_vector) < 0.4:
                         # if the score is low deny access
                         sg.popup("Access Denied!", background_color='red',
-                                 font=('Papyrus', 15), no_titlebar=True,icon=icon_path)
+                                  no_titlebar=True,icon=icon_path)
                         dont_allow_pic = False
                         window.Element("check me").Update(disabled=dont_allow_pic)
                         break
                     else:
                         # if score is high approve access
                         sg.popup("Hello, " + np.squeeze(predict_name), " have a good day!",
-                                 font=('Papyrus', 15),
                                  background_color='green',
                                  icon=icon_path,
                                  no_titlebar=True)
@@ -283,4 +278,3 @@ while True:
         cv2.destroyAllWindows()
         break
 window.close()
-
