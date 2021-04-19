@@ -46,9 +46,7 @@ if not os.path.exists(program_folder):
     os.makedirs(program_folder)
 
 Database_Path =os.path.join(program_folder,"Database.pkl")
-
-   
-        
+      
 #function that check if a pkl file is a valid databse file
 def check_database_valid(Database_path):
     valid=True
@@ -102,7 +100,6 @@ while Database_loaded:
 Database=pd.read_pickle(Database_Path)
 Department_ids =Database.Department.unique().tolist()
 
-
 sg.change_look_and_feel('DarkBlue2')
 sg.popup_animated(image_path,
                   message='Please Wait, Loading…',
@@ -125,7 +122,6 @@ def get_embedding(face_pixels, facenet):
     samples = np.expand_dims(face_pixels, axis=0)
     yhat = facenet.predict(samples)
     return yhat[0]
-
 
 # build Normalize object for  the embedded vector
 in_encoder = Normalizer(norm='l2')
