@@ -23,7 +23,6 @@ else:
 
 sg.popup_animated(image_path,
                   background_color='black',
-                  font=("Papyrus", 14),
                   message='Please Wait, Loading…',
                   icon=icon_path )
 
@@ -92,29 +91,25 @@ Department_ids = Database.Department.unique().tolist()
 id_in_depar = []
 
 tab1_layout = [[sg.Text(key='-EXPAND-0',
-                        font='Papyrus',
                         pad=(0, 10))],
 
                [sg.Text("Name:",
                         justification='right',
-                        size=(11, None),
-                        font=('Papyrus')),
+                        size=(11, None)),
                 sg.In(size=(25, 1),
                       enable_events=True,
                       key="-Name-"), ],
 
                [sg.Text("ID:",
                         justification='right',
-                        size=(11, None),
-                        font=('Papyrus')),
+                        size=(11, None)),
                 sg.In(size=(25, 1),
                       enable_events=True,
                       key="-ID-"), ],
 
                [sg.Text("Department:",
                         justification='right',
-                        size=(11, None),
-                        font=('Papyrus')),
+                        size=(11, None)),
                 sg.Combo(values=Department_ids,
                          size=(25, 1),
                          enable_events=True,
@@ -122,8 +117,7 @@ tab1_layout = [[sg.Text(key='-EXPAND-0',
 
                [sg.Text("Upload Image:",
                         justification='right',
-                        size=(11, None),
-                        font=('Papyrus')),
+                        size=(11, None)),
                 sg.In(size=(25, 1),
                       enable_events=True,
                       key="-Image-PATH-",
@@ -138,18 +132,15 @@ tab1_layout = [[sg.Text(key='-EXPAND-0',
                           disabled=dont_allow_save)],
 
                [sg.Text(key='-EXPAND-3',
-                        font='Papyrus',
                         pad=(0, 10))]]
 
 tab2_layout = [[sg.Text(key='-EXPAND-2',
-                        font='Papyrus',
                         pad=(0, 20))],
 
                [sg.Text("Department:",
                         justification='right',
                         size=(10, None),
-                        pad=(20, 0),
-                        font=('Papyrus')),
+                        pad=(20, 0)),
                 sg.Combo(values=Department_ids,
                          size=(25, 1),
                          enable_events=True,
@@ -159,8 +150,7 @@ tab2_layout = [[sg.Text(key='-EXPAND-2',
                [sg.Text("ID:",
                         justification='right',
                         size=(10, None),
-                        pad=(20, 0),
-                        font=('Papyrus')),
+                        pad=(20, 0)),
                 sg.Combo(values=id_in_depar,
                          readonly=True,
                          size=(25, 1),
@@ -171,17 +161,14 @@ tab2_layout = [[sg.Text(key='-EXPAND-2',
                [sg.Button('Delete from Database',
                           bind_return_key=True,
                           pad=(160, 0),
-                        font=('Papyrus'),
                           disabled=dont_allow_save_del)], ]
 
 tab3_layout = [[sg.Text(key='-EXPAND-',
-                        font='Papyrus',
                         pad=(0, 10))],
 
                [sg.Text("Department to Delete:",
                         justification='right',
-                        pad=(160, 0),
-                        font=('Papyrus'))],
+                        pad=(160, 0))],
 
                [sg.Combo(values=Department_ids,
                          size=(25, 1),
@@ -193,7 +180,6 @@ tab3_layout = [[sg.Text(key='-EXPAND-',
                [sg.Button('Delete Department from Database',
                           pad=(120, 0),
                           bind_return_key=True,
-                          font=('Papyrus'),
                           disabled=dont_allow_dep_del)], ]
 
 # ----- Full layout -----
@@ -205,8 +191,7 @@ layout = [[sg.TabGroup([[sg.Tab('Add New Employee',
                                 tab3_layout)]])]]
 
 window = sg.Window("Human Resource Managment",
-                   layout, font=("Papyrus", 12),
-                   icon=icon_path)
+                   layout, icon=icon_path)
 
 # Run the Event Loop
 while True:
@@ -242,7 +227,7 @@ while True:
         window.Element("Delete from Database").Update(disabled=dont_allow_save_del)
 
     if event == 'Delete from Database':
-        confirm = sg.popup_ok_cancel('Are you sure?', font=('Papyrus'),icon=icon_path)
+        confirm = sg.popup_ok_cancel('Are you sure?',icon=icon_path)
         if confirm == 'OK':
             Database = Database[Database.ID != values["-IDdelete-"]]
             id_in_depar = Database.ID[Database.Department == values["-depardelete-"]].tolist()
@@ -261,7 +246,7 @@ while True:
 
         if values["-Depar-"] in Department_ids and \
                 values["-ID-"] in Database.ID[Database.Department == values["-Depar-"]].tolist():
-            sg.popup("ID ERROR:", "This ID already registered in database", font=('Papyrus'),icon=icon_path)
+            sg.popup("ID ERROR:", "This ID already registered in database",icon=icon_path)
             window.Element("-ID-").Update("")
             continue
         try:
@@ -271,7 +256,7 @@ while True:
             embedded = np.expand_dims(embedded_face, axis=0)
             embedded = in_encoder.transform(embedded)
         except:
-            sg.popup("Image ERROR:", "Try another picture", font=('Papyrus'),icon=icon_path)
+            sg.popup("Image ERROR:", "Try another picture",icon=icon_path)
             window.Element("-Image-PATH-").Update("")
             continue
 
@@ -298,15 +283,5 @@ while True:
         window.Element("Save").Update(disabled=dont_allow_save)
 
     if event == sg.WIN_CLOSED:
-        if not os.path.exists(os.path.join(program_folder,"Log_files")):
-                    os.makedirs(os.path.join(program_folder,"Log_files"))
-        Database[Database.columns[:-1]].replace(" ", "_", regex=True).to_csv(
-            os.path.join(program_folder,"Log_files", 'log.txt'),
-            sep=' ',
-            index=False,
-            header=False)
         break
 window.close()
-
-
-
