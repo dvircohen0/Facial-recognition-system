@@ -10,3 +10,8 @@ Welcome to the Face Detection and Recognition System project! This repository co
 The detection component utilizes the pre-trained Multi-task Cascaded Convolutional Networks (MTCNN) to locate faces within images. Once a face is detected, it is cropped and passed through the FaceNet network to generate a corresponding embedded vector.
 ### Recognition
 The recognition component takes the embedded vector of a face and uses a Support Vector Machine (SVM) classifier to determine the closest matching vector in the company's database, effectively identifying the individual.
+
+Happy Learning!
+---
+[![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-Profile-informational?style=flat&logo=linkedin&logoColor=white&color=0D76A8)](https://www.linkedin.com/in/dvirco/)
+![dvircohen0](https://road-to-kaggle-grandmaster.vercel.app/api/simple/dvircohen0)
