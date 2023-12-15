@@ -1,4 +1,6 @@
 # Face Detection and Recognition System
+<img src="https://media.licdn.com/dms/image/sync/D4D27AQF0PDexyXsQgw/articleshare-shrink_800/0/1701951390855?e=1703246400&v=beta&t=cKwoulayui4ap7UEhTyVpC1Z8zyF2Znl3V2aEWkNE5c">
+
 ## Introduction
 Welcome to the Face Detection and Recognition System project! This repository contains a robust system designed to detect and recognize human faces for the purpose of maintaining a company's employee database. The system is divided into two main components: detection and recognition.
 ## Features
