@@ -15,5 +15,5 @@ Happy Learning!
 ---
 [![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-Profile-informational?style=flat&logo=linkedin&logoColor=white&color=0D76A8)](https://www.linkedin.com/in/dvirco/)
 ![dvircohen0](https://road-to-kaggle-grandmaster.vercel.app/api/simple/dvircohen0)
-![Discord](https://img.shields.io/discord/1105433847841165413)
+![](https://dcbadge.vercel.app/api/shield/355471953491918850?style=flat)
 
